@@ -31,7 +31,7 @@ def setup():
 def RunTwo(p,q,angle):
        q.ChangeDutyCycle(angle)
        time.sleep(2.5)
-       p.ChangeDutyCycle(40)
+       p.ChangeDutyCycle(35)
        time.sleep(2.5)
        p.ChangeDutyCycle(15)
        time.sleep(2.5)
@@ -55,8 +55,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
 
 
 
