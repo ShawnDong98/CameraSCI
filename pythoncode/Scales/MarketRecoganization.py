@@ -9,7 +9,7 @@ import requests
 import json
 import base64
 import urllib
-from aip import AipImageClassify, AipSpeech
+#from aip import AipImageClassify, AipSpeech
 import os
 import time
 
@@ -22,7 +22,7 @@ def  get_access_token():
     API_KEY = 'llfAqrRxdlzGGzjoZdTGecX3'
     SECRET_KEY = 'LgCrhLNLS6pMG2qLeYCzLYEW026WDnXB'
 
-    client = AipSpeech(APP_ID, API_KEY, SECRET_KEY)
+    #client = AipSpeech(APP_ID, API_KEY, SECRET_KEY)
 
     host = 'https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=%s&client_secret=%s' % (API_KEY, SECRET_KEY)
     response = requests.post(host)
@@ -31,7 +31,7 @@ def  get_access_token():
 
     access_token = str(access_token['access_token'])
 
-    return access_token, client
+    return access_token
 
 def get_file_content(filePath):
     with open(filePath, 'rb') as fp:

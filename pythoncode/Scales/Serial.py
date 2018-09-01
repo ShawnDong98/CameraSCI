@@ -26,7 +26,7 @@ def main():
     while (IfWIFI()):
         print("No WIFI")
     picture = 'shot.jpg'
-    at,client = get_access_token()
+    at = get_access_token()
     cam = Camera()
     display = Display((800,600))
     a = 1
