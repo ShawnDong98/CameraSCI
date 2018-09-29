@@ -13,6 +13,7 @@ import os
 import time
 
 #------------------------------------------------
+import picamera
 from SimpleCV  import *
 from SimpleCV.Display import Display
 
@@ -49,7 +50,7 @@ def get_file_content(filePath):
 def GarbageRecognization(access_token,picture):
     url = 'https://aip.baidubce.com/rpc/2.0/ai_custom/v1/classification/rubbish?access_token=' + access_token
     header = {'Content-Type' : 'application/json'}
-    image = get_file_content('/home/pi/%s' % (picture))
+    image = get_file_content('/home/pi/version/pythoncode/GarbageRecoganization/%s' % (picture))
     image = base64.b64encode(image)
     body = {'image' : image, 'top_num': 1}
     body = json.dumps(body).encode('utf-8')
@@ -85,6 +86,21 @@ def IfWIFI():
 
 #-------------------------------------------------------------------------------
 
+def get_camera_image(name):
+    with picamera.PiCamera() as camera:
+        camera.start_preview()
+        camera.capture(name)
+        #time.sleep(5)
+        camera.stop_preview()
+    return Image(name)
+
+#-----------------------------------------------
+def file_name(file_dir):
+    list =[]
+    for root, dirs, files in os.walk(file_dir):
+        list.append(files)
+
+    return list
 
 
 def destory():
@@ -96,7 +112,12 @@ def main():
     #while (IfWIFI()):
         #print("No WIFI")
     picture = 'image6.jpg'
-    at = get_access_token()
+    while True:
+        try:
+            at = get_access_token()
+            break
+        except:
+            continue
     setup()
     p=GPIO.PWM(13,300)
     p.start(15)
@@ -108,12 +129,15 @@ def main():
     j = 0
     n = 0
     #RunTwo(p,q,40)
-    cam = Camera()
+    #cam = Camera()
     #display = Display()
     while j < 5:
+        get_camera_image('image%d.jpg'%j)
+        '''
         frame = cam.getImage()
         #frame.save(display)
         frame.save('image%d.jpg'%j)
+        '''
         time.sleep(0.5)
         j += 1
     img0 = cv2.imread("image0.jpg")
@@ -133,45 +157,61 @@ def main():
     ss4 = getss(diff4)
     avrSS = (ss0 + ss1 + ss2 + ss3 + ss4) / 5
     os.system('sudo omxplayer /home/pi/Downloads/test.mp3')
+    times = 0
     #while not display.isDone():
     while True:
-        frame = cam.getImage()
-        #frame.save(display)
-        frame.save('image5.jpg')
-        img5 = cv2.imread("image5.jpg")
-        diff5 = getdiff(img5)
-        ss5 = getss(diff5)
-        error = abs(avrSS - ss5)
-        if(error > 550):
-            n += 1
-            error = 0
-            print('ss1: %s' % avrSS)
-            print('ss2: %s' % ss5)
-            time.sleep(2)
+            get_camera_image('image5.jpg')
+            '''
             frame = cam.getImage()
-            frame.save('image6.jpg')
-            name = GarbageRecognization(at,picture)
-            print(name)
-            if name == "bottle":
-                print(name)
-                name = ''
-                RunTwo(p,q,70)
-                frame.save('/home/pi/bottle/image%d.jpg'%n)
-                print("bottle")
-                        
-            if name == "paper":
-                print(name)
-                name = ''
-                RunTwo(p,q,45)
-                frame.save('/home/pi/paper/image%d.jpg'%n)
-                print("paper")
-               
-            if  name == "[default]":
-                print(name)
-                name = ''
-                RunTwo(p,q,20)
-                frame.save('/home/pi/default/image%d.jpg'%n)
-                print("default")
+            #frame.save(display)
+            frame.save('image5.jpg')
+            '''
+            img5 = cv2.imread("image5.jpg")
+            diff5 = getdiff(img5)
+            ss5 = getss(diff5)
+            error = abs(avrSS - ss5)
+            print(error)
+            if(error > 300):
+                error = 0
+                times += 1
+                if(times == 2):
+                    times = 0
+                    print('ss1: %s' % avrSS)
+                    print('ss2: %s' % ss5)
+                    
+                    time.sleep(2)
+                    frame = get_camera_image('image6.jpg')
+                    name = GarbageRecognization(at,picture)
+                    print(name)
+                    if name == "bottle":
+                        print(name)
+                        name = ''
+                        RunTwo(p,q,70)
+                        n = len(file_name("/home/pi/bottle")[0]) + 1
+                        print("num: %s" % n)
+                        frame.save('/home/pi/bottle/image%d.jpg'%n)
+                        print("bottle")
+                                
+                    if name == "paper":
+                        print(name)
+                        name = ''
+                        RunTwo(p,q,45)
+                        n = len(file_name("/home/pi/paper")[0]) + 1
+                        print("num: %s" % n)
+                        frame.save('/home/pi/paper/image%d.jpg'%n)
+                        print("paper")
+                       
+                    if  name == "[default]":
+                        print(name)
+                        name = ''
+                        RunTwo(p,q,20)
+                        n = len(file_name("/home/pi/default")[0]) + 1
+                        print("num: %s" % n)
+                        frame.save('/home/pi/default/image%d.jpg'%n)
+                        print("default")
+                    
+            else:
+                times = 0
             
                 
     '''
